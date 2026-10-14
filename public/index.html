@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio de Código</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #141e30, #243b55);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 25px;
+            background: #ffffff15;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px #0004;
+        }
+
+        h1 {
+            color: #61dafb;
+        }
+
+        #nome, button {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        #nome {
+            background: #fff;
+            color: #222;
+        }
+
+        button {
+            background: #6c5ce7;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #5141c5;
+            transform: scale(1.02);
+        }
+
+        button:disabled {
+            cursor: default;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        button.secundario {
+            background: transparent;
+            border: 1px solid #ffffff55;
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        button.secundario:hover {
+            background: #ffffff15;
+        }
+
+        button:focus-visible,
+        #nome:focus-visible {
+            outline: 3px solid #61dafb;
+            outline-offset: 2px;
+        }
+
+        .oculto {
+            display: none;
+        }
+
+        .regras {
+            font-size: 14px;
+            color: #ffffffb0;
+        }
+
+        .erro {
+            color: #ff9292;
+            font-weight: bold;
+        }
+
+        /* ---------- Placar e barra de progresso ---------- */
+        #topo {
+            color: #61dafb;
+            font-weight: bold;
+        }
+
+        .barra {
+            height: 12px;
+            background: #ffffff25;
+            border-radius: 99px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        #barraPreenchida {
+            height: 100%;
+            width: 0;
+            background: #61dafb;
+            transition: width 0.4s;
+        }
+
+        #barraTexto {
+            font-size: 14px;
+            color: #ffffffb0;
+            margin: 4px 0 18px;
+        }
+
+        /* ---------- Desafio ---------- */
+        .nivel {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .nivel.easy {
+            background: #61ffb5;
+        }
+
+        .nivel.medium {
+            background: #ffd166;
+        }
+
+        .nivel.hard {
+            background: #ff9292;
+        }
+
+        .saida {
+            text-align: left;
+            font-size: 14px;
+            margin: 12px 0;
+        }
+
+        .saida pre {
+            background: #00000040;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 6px 0 0;
+            font-family: Consolas, "Courier New", monospace;
+            color: #61ffb5;
+        }
+
+        /* ---------- Editor de código ---------- */
+        .codigo {
+            background: #0d1117;
+            color: #e6edf3;
+            text-align: left;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 15px;
+            line-height: 2;
+            padding: 16px;
+            margin: 0;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .c-kw { color: #ff7b72; }
+        .c-str { color: #a5d6ff; }
+        .c-num { color: #79c0ff; }
+        .c-com { color: #8b949e; }
+        .c-fn { color: #d2a8ff; }
+
+        /* Lacuna que o aluno preenche */
+        input.lacuna {
+            font: inherit;
+            color: #fff;
+            background: #6c5ce744;
+            border: none;
+            border-bottom: 2px dashed #61dafb;
+            border-radius: 4px;
+            padding: 0 6px;
+            margin: 0 2px;
+            text-align: center;
+            outline: none;
+        }
+
+        input.lacuna:focus {
+            background: #6c5ce799;
+            border-bottom-color: #fff;
+        }
+
+        input.lacuna.errado {
+            border-bottom: 2px solid #ff9292;
+        }
+
+        input.lacuna.certo,
+        input.lacuna:disabled {
+            opacity: 1;
+            color: #61ffb5;
+            border-bottom: 2px solid #61ffb5;
+        }
+
+        #valendo {
+            font-size: 14px;
+            color: #ffd166;
+            margin: 12px 0 0;
+        }
+
+        /* ---------- Feedback ---------- */
+        #feedback {
+            font-weight: bold;
+            min-height: 24px;
+            margin: 12px 0 4px;
+        }
+
+        #feedback.certo { color: #61ffb5; }
+        #feedback.errado { color: #ff9292; }
+        #feedback.aviso { color: #ffd166; }
+
+        .dica {
+            background: #ffd16622;
+            border-left: 4px solid #ffd166;
+            border-radius: 6px;
+            padding: 10px 14px;
+            text-align: left;
+            margin: 8px 0;
+        }
+
+        /* ---------- Painel do administrador ---------- */
+        #admin {
+            text-align: left;
+        }
+
+        #admin h2,
+        #admin h3 {
+            text-align: center;
+        }
+
+        .tabela {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin: 8px 0 20px;
+        }
+
+        .tabela th,
+        .tabela td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #ffffff25;
+            text-align: center;
+        }
+
+        .tabela td.nome {
+            text-align: left;
+        }
+
+        .tabela button {
+            width: auto;
+            margin: 0;
+            padding: 6px 10px;
+            font-size: 13px;
+            background: #c0392b;
+        }
+
+        .selo {
+            background: #ffd166;
+            color: #111;
+            border-radius: 99px;
+            padding: 1px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+
+        .gabarito {
+            font-size: 14px;
+            margin: 6px 0;
+        }
+
+        .gabarito code {
+            background: #00000050;
+            border-radius: 4px;
+            padding: 1px 6px;
+            color: #61ffb5;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💻 Desafio de Código</h1>
+        <p>Complete o código em Dart e ganhe pontos!</p>
+
+        <!-- Só aparece para administradores -->
+        <button id="btnAdmin" class="secundario oculto" onclick="abrirAdmin()">⚙️ Painel de administrador</button>
+
+        <!-- PAINEL DO ADMINISTRADOR -->
+        <div id="admin" class="oculto">
+            <h2>⚙️ Painel de administrador</h2>
+            <p id="erroAdmin" class="erro"></p>
+
+            <h3>Ranking dos alunos</h3>
+            <table class="tabela">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Pontos</th>
+                        <th>Desafios</th>
+                        <th>Estrelas</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaAlunos"></tbody>
+            </table>
+
+            <h3>Respostas corretas</h3>
+            <div id="gabarito"></div>
+
+            <button onclick="fecharAdmin()">Voltar ao jogo</button>
+        </div>
+
+        <!-- TELA INICIAL -->
+        <div id="inicio">
+            <label for="nome">Seu nome:</label>
+            <input id="nome" type="text" maxlength="30"
+                placeholder="Ex.: Joabes" autocomplete="off">
+            <p id="erroInicio" class="erro"></p>
+            <button onclick="iniciar()">Começar jogo</button>
+            <p class="regras">
+                Acertou: ganha pontos e até 3 ⭐ (menos tentativas, mais estrelas).<br>
+                Errou: perde 5 pontos e recebe uma dica.
+            </p>
+        </div>
+
+        <!-- TELA DO DESAFIO -->
+        <div id="jogo" class="oculto">
+            <p id="topo"></p>
+            <div class="barra"><div id="barraPreenchida"></div></div>
+            <p id="barraTexto"></p>
+
+            <h2 id="titulo"></h2>
+            <span id="nivel" class="nivel"></span>
+            <p id="descricao"></p>
+
+            <div class="saida">
+                <strong>Saída esperada:</strong>
+                <pre id="saidaEsperada"></pre>
+            </div>
+
+            <div id="editor"></div>
+            <p id="valendo"></p>
+
+            <button id="btnExecutar" onclick="executar()">▶ Executar</button>
+            <p id="feedback" role="status"></p>
+            <p id="dica" class="dica oculto"></p>
+
+            <button id="btnProximo" class="oculto" onclick="proximo()">Próximo desafio</button>
+            <button id="btnPular" class="secundario" onclick="pular()">Pular desafio</button>
+        </div>
+
+        <!-- TELA FINAL -->
+        <div id="resultado" class="oculto">
+            <h2>🏆 Fim do jogo!</h2>
+            <h3 id="pontuacao"></h3>
+            <p id="resumo"></p>
+            <p id="mensagem"></p>
+            <button onclick="voltarInicio()">Voltar ao início</button>
+        </div>
+    </div>
+
+    <script>
+        // ---------- Constantes ----------
+        const MARCADOR = "___BLANK___";
+        const NIVEIS = { easy: "Fácil", medium: "Médio", hard: "Difícil" };
+
+        // ---------- Estado do jogo ----------
+        let alunoId = "";        // identificador enviado ao backend
+        let alunoNome = "";      // nome exibido na tela
+        let desafios = [];       // lista vinda de GET /api/challenges
+        let progresso = null;    // vindo de GET /api/progress/:studentId
+        let indice = 0;          // desafio atual
+        let concluidoAgora = false;
+
+        // ---------- Utilitários ----------
+        function el(id) {
+            return document.getElementById(id);
+        }
+
+        function esc(texto) {
+            return texto
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function estrelasTexto(n) {
+            return "⭐".repeat(n) + "☆".repeat(3 - n);
+        }
+
+        // Chama o backend; devolve null se o servidor não responder.
+        async function chamarApi(url, opcoes) {
+            try {
+                const resposta = await fetch(url, opcoes);
+                return await resposta.json();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ---------- Realce de sintaxe simples (sem bibliotecas) ----------
+        function destacar(texto) {
+            const regex = /(\/\/.*)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|(\b\d+(?:\.\d+)?\b)|(\b(?:int|double|num|String|bool|var|final|const|void|List|for|while|if|else|return|in|true|false|null)\b)|(\b(?:print|main)\b)/g;
+
+            let saida = "";
+            let ultimo = 0;
+            let m;
+
+            while ((m = regex.exec(texto)) !== null) {
+                saida += esc(texto.slice(ultimo, m.index));
+
+                let classe = "c-fn";
+                if (m[1]) classe = "c-com";
+                else if (m[2]) classe = "c-str";
+                else if (m[3]) classe = "c-num";
+                else if (m[4]) classe = "c-kw";
+
+                saida += `<span class="${classe}">${esc(m[0])}</span>`;
+                ultimo = regex.lastIndex;
+            }
+
+            return saida + esc(texto.slice(ultimo));
+        }
+
+        // ---------- Progresso ----------
+        function estaConcluido(id) {
+            return progresso.completed.some(c => c.id === id);
+        }
+
+        // Procura o próximo desafio pendente depois de "atual".
+        // Devolve -1 se todos estiverem concluídos.
+        function proximoPendente(atual) {
+            for (let passo = 1; passo <= desafios.length; passo++) {
+                const i = (atual + passo) % desafios.length;
+                if (!estaConcluido(desafios[i].id)) return i;
+            }
+            return -1;
+        }
+
+        function atualizarPlacar() {
+            const d = desafios[indice];
+            const total = desafios.length;
+            const feitos = progresso.completed.length;
+
+            el("topo").textContent = `Aluno: ${alunoNome} | Pontos: ${progresso.points}`;
+            el("barraPreenchida").style.width = `${(feitos / total) * 100}%`;
+            el("barraTexto").textContent = `${feitos} de ${total} desafios concluídos`;
+
+            // Estrelas possíveis na próxima tentativa
+            const tentativas = progresso.attempts[String(d.id)] || 0;
+            const possiveis = tentativas === 0 ? 3 : (tentativas === 1 ? 2 : 1);
+
+            el("valendo").textContent = concluidoAgora
+                ? ""
+                : `Valendo agora: ${"⭐".repeat(possiveis)} = +${d.basePoints * possiveis} pontos`;
+        }
+
+        // ---------- Tela inicial ----------
+        async function iniciar() {
+            const nome = el("nome").value.trim();
+            const erro = el("erroInicio");
+            erro.textContent = "";
+
+            if (!nome) {
+                erro.textContent = "Digite seu nome para começar.";
+                return;
+            }
+
+            alunoNome = nome;
+            alunoId = nome.toLowerCase();
+
+            const lista = await chamarApi("/api/challenges");
+            const prog = await chamarApi("/api/progress/" + encodeURIComponent(alunoId));
+
+            if (!Array.isArray(lista) || !prog) {
+                erro.textContent =
+                    "Não foi possível falar com o servidor. Rode 'dart run' e abra http://localhost:8080";
+                return;
+            }
+
+            desafios = lista;
+            progresso = prog;
+
+            // Administradores (definidos no backend) veem o painel
+            el("btnAdmin").classList.toggle("oculto", !progresso.isAdmin);
+
+            el("inicio").classList.add("oculto");
+            indice = proximoPendente(-1);
+
+            if (indice === -1) {
+                mostrarResultado();
+            } else {
+                el("jogo").classList.remove("oculto");
+                mostrarDesafio();
+            }
+        }
+
+        el("nome").addEventListener("keydown", e => {
+            if (e.key === "Enter") iniciar();
+        });
+
+        // ---------- Desafio ----------
+        function mostrarDesafio() {
+            const d = desafios[indice];
+            concluidoAgora = false;
+
+            el("titulo").textContent = d.title;
+
+            const nivel = el("nivel");
+            nivel.textContent = NIVEIS[d.difficulty] || d.difficulty;
+            nivel.className = "nivel " + d.difficulty;
+
+            el("descricao").textContent = d.description;
+            el("saidaEsperada").textContent = d.expectedOutput;
+
+            montarEditor(d);
+            mostrarFeedback("", "");
+            el("dica").classList.add("oculto");
+
+            el("btnExecutar").disabled = false;
+            el("btnProximo").classList.add("oculto");
+            el("btnPular").classList.remove("oculto");
+
+            atualizarPlacar();
+        }
+
+        // Monta o código: texto com realce + um campo para cada lacuna.
+        function montarEditor(d) {
+            const editor = el("editor");
+            editor.innerHTML = "";
+
+            const pre = document.createElement("pre");
+            pre.className = "codigo";
+
+            const partes = d.codeTemplate.split(MARCADOR);
+
+            partes.forEach((parte, i) => {
+                const trecho = document.createElement("span");
+                trecho.innerHTML = destacar(parte);
+                pre.appendChild(trecho);
+
+                if (i < partes.length - 1) {
+                    const campo = document.createElement("input");
+                    campo.type = "text";
+                    campo.className = "lacuna";
+                    campo.autocomplete = "off";
+                    campo.spellcheck = false;
+                    campo.style.width = "8ch";
+                    campo.setAttribute("aria-label", "Lacuna " + (i + 1));
+
+                    // Aumenta o campo conforme o aluno digita
+                    campo.addEventListener("input", () => {
+                        campo.classList.remove("errado");
+                        campo.style.width = Math.max(8, campo.value.length + 2) + "ch";
+                    });
+
+                    campo.addEventListener("keydown", e => {
+                        if (e.key === "Enter") executar();
+                    });
+
+                    pre.appendChild(campo);
+                }
+            });
+
+            editor.appendChild(pre);
+
+            const primeiro = pre.querySelector("input");
+            if (primeiro) primeiro.focus();
+        }
+
+        function mostrarFeedback(texto, tipo) {
+            const f = el("feedback");
+            f.textContent = texto;
+            f.className = tipo;
+        }
+
+        // Envia as respostas ao backend e mostra o resultado.
+        async function executar() {
+            if (concluidoAgora) return;
+
+            const d = desafios[indice];
+            const campos = [...document.querySelectorAll("#editor input.lacuna")];
+            const respostas = campos.map(c => c.value.trim());
+
+            if (respostas.some(r => r === "")) {
+                mostrarFeedback("⚠️ Preencha todas as lacunas antes de executar.", "aviso");
+                return;
+            }
+
+            el("btnExecutar").disabled = true;
+
+            const r = await chamarApi(`/api/challenges/${d.id}/check`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ studentId: alunoId, answers: respostas })
+            });
+
+            el("btnExecutar").disabled = false;
+
+            if (!r || r.erro) {
+                mostrarFeedback(
+                    "Não foi possível verificar: " +
+                    (r && r.erro ? r.erro : "confira se o servidor está rodando."),
+                    "errado"
+                );
+                return;
+            }
+
+            progresso.points = r.totalPoints;
+            progresso.attempts[String(d.id)] = r.attempts;
+
+            if (r.correct) {
+                concluidoAgora = true;
+
+                if (!estaConcluido(d.id)) {
+                    progresso.completed.push({ id: d.id, stars: r.stars });
+                }
+
+                campos.forEach(c => {
+                    c.disabled = true;
+                    c.classList.add("certo");
+                });
+
+                mostrarFeedback(
+                    `✅ Acertou! +${r.pointsDelta} pontos · ${estrelasTexto(r.stars)}`,
+                    "certo"
+                );
+
+                el("dica").classList.add("oculto");
+                el("btnExecutar").disabled = true;
+                el("btnPular").classList.add("oculto");
+
+                const temMais = proximoPendente(indice) !== -1;
+                el("btnProximo").textContent = temMais ? "Próximo desafio" : "Ver resultado";
+                el("btnProximo").classList.remove("oculto");
+            } else {
+                campos.forEach(c => c.classList.add("errado"));
+
+                const perdeu = r.pointsDelta < 0
+                    ? ` ${r.pointsDelta} pontos`
+                    : "";
+                mostrarFeedback(`❌ Ainda não está certo.${perdeu}`, "errado");
+
+                el("dica").textContent = "💡 Dica: " + r.hint;
+                el("dica").classList.remove("oculto");
+            }
+
+            atualizarPlacar();
+        }
+
+        function proximo() {
+            const prox = proximoPendente(indice);
+
+            if (prox === -1) {
+                mostrarResultado();
+            } else {
+                indice = prox;
+                mostrarDesafio();
+            }
+        }
+
+        function pular() {
+            const prox = proximoPendente(indice);
+
+            if (prox === indice) {
+                mostrarFeedback("Este é o único desafio pendente.", "aviso");
+                return;
+            }
+
+            indice = prox;
+            mostrarDesafio();
+        }
+
+        // ---------- Tela final ----------
+        function mostrarResultado() {
+            el("jogo").classList.add("oculto");
+            el("resultado").classList.remove("oculto");
+
+            const total = desafios.length;
+            const estrelas = progresso.completed.reduce((soma, c) => soma + c.stars, 0);
+            const proporcao = estrelas / (total * 3);
+
+            el("pontuacao").textContent = `${progresso.points} pontos`;
+            el("resumo").textContent =
+                `${progresso.completed.length} de ${total} desafios concluídos · ${estrelas} de ${total * 3} ⭐`;
+
+            el("mensagem").textContent =
+                proporcao === 1
+                    ? "🏆 Perfeito! Todas as estrelas de todos os desafios!"
+                    : proporcao >= 0.6
+                    ? "🎉 Muito bem! Continue praticando!"
+                    : "💪 Bom começo. Você consegue!";
+        }
+
+        function voltarInicio() {
+            el("resultado").classList.add("oculto");
+            el("btnAdmin").classList.add("oculto");
+            el("inicio").classList.remove("oculto");
+        }
+
+        // ---------- Painel do administrador ----------
+        let telaAnterior = "jogo"; // tela para onde voltar ao fechar o painel
+
+        async function abrirAdmin() {
+            telaAnterior = el("jogo").classList.contains("oculto") ? "resultado" : "jogo";
+
+            el("jogo").classList.add("oculto");
+            el("resultado").classList.add("oculto");
+            el("btnAdmin").classList.add("oculto");
+            el("admin").classList.remove("oculto");
+
+            await carregarPainel();
+        }
+
+        function fecharAdmin() {
+            el("admin").classList.add("oculto");
+            el("btnAdmin").classList.remove("oculto");
+            el(telaAnterior).classList.remove("oculto");
+        }
+
+        async function carregarPainel() {
+            el("erroAdmin").textContent = "";
+
+            const dados = await chamarApi("/api/admin/panel?adminId=" + encodeURIComponent(alunoId));
+
+            if (!dados || dados.erro) {
+                el("erroAdmin").textContent = (dados && dados.erro) || "Não foi possível carregar o painel.";
+                return;
+            }
+
+            // Ranking (usa textContent para o nome do aluno nunca ser tratado como HTML)
+            const corpo = el("tabelaAlunos");
+            corpo.innerHTML = "";
+
+            if (dados.students.length === 0) {
+                const linha = document.createElement("tr");
+                const celula = document.createElement("td");
+                celula.colSpan = 5;
+                celula.textContent = "Nenhum aluno jogou ainda.";
+                linha.appendChild(celula);
+                corpo.appendChild(linha);
+            }
+
+            dados.students.forEach(aluno => {
+                const linha = document.createElement("tr");
+
+                const nome = document.createElement("td");
+                nome.className = "nome";
+                nome.textContent = aluno.studentId;
+                if (aluno.isAdmin) {
+                    const selo = document.createElement("span");
+                    selo.className = "selo";
+                    selo.textContent = "admin";
+                    nome.appendChild(selo);
+                }
+                linha.appendChild(nome);
+
+                [aluno.points, `${aluno.completedCount}/${desafios.length}`, aluno.stars].forEach(valor => {
+                    const celula = document.createElement("td");
+                    celula.textContent = valor;
+                    linha.appendChild(celula);
+                });
+
+                const acao = document.createElement("td");
+                const botao = document.createElement("button");
+                botao.textContent = "Zerar";
+                botao.onclick = () => zerarAluno(aluno.studentId);
+                acao.appendChild(botao);
+                linha.appendChild(acao);
+
+                corpo.appendChild(linha);
+            });
+
+            // Respostas corretas de cada desafio
+            const gabarito = el("gabarito");
+            gabarito.innerHTML = "";
+
+            dados.challenges.forEach(c => {
+                const p = document.createElement("p");
+                p.className = "gabarito";
+
+                const titulo = document.createElement("strong");
+                titulo.textContent = `${c.id}. ${c.title}: `;
+                p.appendChild(titulo);
+
+                c.answers.forEach((resposta, i) => {
+                    if (i > 0) p.appendChild(document.createTextNode(" | "));
+                    const code = document.createElement("code");
+                    code.textContent = resposta;
+                    p.appendChild(code);
+                });
+
+                gabarito.appendChild(p);
+            });
+        }
+
+        async function zerarAluno(studentId) {
+            if (!confirm(`Zerar todo o progresso de "${studentId}"?`)) return;
+
+            const r = await chamarApi("/api/admin/reset", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ adminId: alunoId, studentId: studentId })
+            });
+
+            if (!r || r.erro) {
+                el("erroAdmin").textContent = (r && r.erro) || "Não foi possível zerar o progresso.";
+                return;
+            }
+
+            // Se o admin zerou o próprio progresso, recarrega o jogo dele
+            if (studentId === alunoId) {
+                progresso = await chamarApi("/api/progress/" + encodeURIComponent(alunoId));
+                indice = proximoPendente(-1);
+                telaAnterior = "jogo";   // ao fechar o painel, volta ao primeiro desafio
+                mostrarDesafio();
+            }
+
+            await carregarPainel();
+        }
+    </script>
+</body>
+</html>
