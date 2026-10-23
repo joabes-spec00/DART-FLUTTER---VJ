@@ -556,7 +556,7 @@ Future<void> tratar(HttpRequest request) async {
 // ---------------------------------------------------------------
 
 void main() async {
-  final server = await HttpServer.bind(InternetAddress.anyIPv4, 8080);
+  final server = await HttpServer.bind(InternetAddress.anyIPv4, int.parse(Platform.environment['PORT'] ?? '8080'));
   print('Servidor rodando em http://localhost:${server.port}');
 
   await for (final request in server) {
